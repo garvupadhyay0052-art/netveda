@@ -1,0 +1,13 @@
+Backend/.env
+**/__pycache__/
+*.py[cod]
+Data/*.db
+Data/*.xlsx
+Data/*.xls
+Data/*.csv
+Data/*.xml
+.venv/
+venv/
+env/
+*.log
+.DS_Store

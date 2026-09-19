@@ -1,0 +1,20 @@
+NETVEDA
+
+NetVeda is a fictional telecom company providing affordable mobile data plans.
+
+DATA PLANS
+
+Plan: NetVeda 199
+Price: ₹199
+Data: 1 GB per day
+Validity: 28 days
+
+Plan: NetVeda 299
+Price: ₹299
+Data: 1.5 GB per day
+Validity: 28 days
+
+Plan: NetVeda 399
+Price: ₹399
+Data: 2 GB per day
+Validity: 56 days
