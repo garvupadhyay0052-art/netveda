@@ -9,12 +9,12 @@
 }
 
 :root {
-    --blue: #1769e0;
-    --blue-dark: #0d4fc1;
-    --blue-light: #edf5ff;
-    --text: #101828;
-    --muted: #667085;
-    --border: #e4e7ec;
+    --blue: #1b63f0;
+    --blue-dark: #1049b9;
+    --blue-light: #edf4ff;
+    --text: #14243a;
+    --muted: #68778c;
+    --border: #dce4ef;
     --white: #ffffff;
     --shadow: 0 20px 60px rgba(16, 24, 40, 0.12);
 }
@@ -24,9 +24,9 @@ html {
 }
 
 body {
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: "DM Sans", "Segoe UI", sans-serif;
     color: var(--text);
-    background: #ffffff;
+    background: #f7f9fc;
     line-height: 1.5;
 }
 
@@ -1305,4 +1305,190 @@ body {
 
 .chat-plan-options button:hover {
     background: #edf5ff;
+}
+
+/* =========================================================
+   ADVANCED SERVICE SURFACE
+   ========================================================= */
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+    background: radial-gradient(circle at 8% 4%, rgba(27, 99, 240, 0.08), transparent 28%),
+        radial-gradient(circle at 90% 28%, rgba(131, 228, 188, 0.08), transparent 22%);
+}
+
+.navbar {
+    background: rgba(247, 249, 252, 0.86);
+    backdrop-filter: blur(16px);
+}
+
+.hero {
+    padding-top: 105px;
+    padding-bottom: 80px;
+}
+
+.network-card {
+    background: linear-gradient(145deg, #0d2859 0%, #1358c9 52%, #1b7ee6 100%);
+}
+
+.network-metrics {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin: -2px 0 16px;
+}
+
+.network-metrics div {
+    padding: 9px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.network-metrics span,
+.network-metrics strong {
+    display: block;
+}
+
+.network-metrics span {
+    color: rgba(255, 255, 255, 0.68);
+    font-size: 9px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.network-metrics strong {
+    margin-top: 3px;
+    font-size: 13px;
+}
+
+.service-pulse {
+    max-width: 1190px;
+    margin: 0 auto;
+    padding: 17px 22px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 12px 28px rgba(18, 32, 51, 0.05);
+}
+
+.pulse-label,
+.pulse-items,
+.pulse-items div {
+    display: flex;
+    align-items: center;
+}
+
+.pulse-label {
+    gap: 9px;
+    color: #122033;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    white-space: nowrap;
+}
+
+.pulse-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #27bb78;
+    box-shadow: 0 0 0 5px rgba(39, 187, 120, 0.12);
+}
+
+.pulse-items {
+    flex: 1;
+    justify-content: space-around;
+    gap: 18px;
+}
+
+.pulse-items div {
+    gap: 8px;
+    font-size: 12px;
+}
+
+.pulse-items span,
+.pulse-time {
+    color: var(--muted);
+}
+
+.pulse-items strong {
+    color: #122033;
+    font-size: 12px;
+}
+
+.pulse-time {
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+.plan-card,
+.feature-card {
+    transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.plan-card:hover {
+    transform: translateY(-6px);
+    border-color: #99b8ed;
+    box-shadow: 0 20px 42px rgba(18, 32, 51, 0.12);
+}
+
+.plan-card.featured:hover {
+    transform: translateY(-13px);
+}
+
+.feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 30px rgba(18, 32, 51, 0.08);
+}
+
+@media (max-width: 950px) {
+    .service-pulse {
+        margin: 0 30px;
+        flex-wrap: wrap;
+    }
+
+    .pulse-items {
+        order: 3;
+        flex-basis: 100%;
+    }
+}
+
+@media (max-width: 700px) {
+    .service-pulse {
+        margin: 0 20px;
+        padding: 16px;
+        gap: 15px;
+    }
+
+    .pulse-items {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .pulse-time {
+        margin-left: auto;
+    }
+
+    .network-metrics {
+        gap: 5px;
+    }
+
+    .network-metrics div {
+        padding: 8px 6px;
+    }
+
+    .network-metrics strong {
+        font-size: 11px;
+    }
 }
