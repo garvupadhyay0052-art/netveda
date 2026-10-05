@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse
 from pydantic import BaseModel, Field
 from openrouter import OpenRouter
 from dotenv import load_dotenv
@@ -11,6 +11,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+import requests
 try:
     from .database import (
         create_customer as db_create_customer,
@@ -21,6 +22,7 @@ try:
         get_customer_history,
         get_connection,
         get_or_create_chatbot,
+        create_new_chatbot,
         get_chatbot_by_token,
         get_knowledge_sources,
         save_knowledge_source,
@@ -39,6 +41,7 @@ except ImportError:
         get_customer_history,
         get_connection,
         get_or_create_chatbot,
+        create_new_chatbot,
         get_chatbot_by_token,
         get_knowledge_sources,
         save_knowledge_source,
@@ -52,6 +55,8 @@ import re
 import uuid
 from html.parser import HTMLParser
 from urllib.request import Request as UrlRequest, urlopen
+from urllib.parse import urldefrag, urljoin, urlparse
+from collections import deque
 
 # =========================================================
 # ENVIRONMENT
@@ -1145,19 +1150,21 @@ def handle_existing_verification(message):
 # UNIVERSAL AI RESPONSE
 # No conversation_history is stored.
 # =========================================================
-def generate_ai_response(message, conversation=None, knowledge_extra=""):
+def generate_ai_response(message, conversation=None, knowledge_extra="", use_global_knowledge=True):
     if not client:
         return (
             "I'm currently unable to connect to the AI service. "
             "Please check the backend API key."
         )
 
-    knowledge = search_knowledge(message)
+    knowledge = search_knowledge(message) if use_global_knowledge else ""
 
     system_prompt = """
-You are NetVeda AI, a universal helpful AI assistant.
+You are Kairo AI, a helpful website assistant and natural conversation partner.
 
 You can talk about ANY topic.
+
+You MUST provide specific URLs or links whenever discussing website content, pages, or external resources. Use Markdown format: [Link Text](https://url). IMPORTANT: ALWAYS use absolute, full URLs (e.g., https://example.com/pricing), NEVER use relative URLs (e.g., /pricing).
 
 You can answer:
 - General questions
@@ -1173,7 +1180,9 @@ You can answer:
 - Writing
 - General knowledge
 
-For NetVeda-specific questions, use the provided NetVeda knowledge context.
+For website-specific questions, use only the provided WEBSITE KNOWLEDGE context.
+If the answer is not in that context, say that the website content does not provide
+that detail instead of inventing a company, product, pricing, or plan answer.
 
 Do not mention:
 - backend code
@@ -1187,18 +1196,18 @@ Be friendly, clear and useful.
 
 Conversation behavior:
 - Read the complete recent conversation before answering.
-- Answer the user's latest message directly instead of repeating an earlier answer.
+- Answer ONLY the user's latest question directly. Do NOT add unnecessary information, explanations, or rambling. Keep it strictly to the point.
 - Ask only one useful follow-up question when information is missing.
 - Do not request a phone number unless the user wants a ticket, callback, purchase,
   upgrade, recharge, or account-specific help.
-- For plan questions, explain the relevant plan and offer clear next choices.
-- Keep replies concise, natural, and varied.
+- For normal conversation, respond naturally but VERY concisely. Answer exactly what is asked.
+- When you mention a specific plan, service, feature, or topic that corresponds to a page on the website (like /about, /pricing, /blog, /app, /login, etc.), ALWAYS include a markdown link to that specific URL (e.g. [Pricing](/pricing)) so the user can easily click it.
 """
 
     if knowledge:
-        system_prompt += "\n\nNETVEDA KNOWLEDGE:\n" + knowledge
+        system_prompt += "\n\nLEGACY KNOWLEDGE:\n" + knowledge
     if knowledge_extra:
-        system_prompt += "\n\nCHATBOT TRAINING SOURCES:\n" + knowledge_extra[:12000]
+        system_prompt += "\n\nWEBSITE KNOWLEDGE:\n" + knowledge_extra[:24000]
 
     messages = [
         {"role": "system", "content": system_prompt},
@@ -1216,7 +1225,18 @@ Conversation behavior:
             model="openrouter/free",
             messages=messages,
         )
-        return response.choices[0].message.content
+        reply = response.choices[0].message.content
+        reply = re.sub(r'<think>.*?</think>', '', reply, flags=re.DOTALL)
+        reply = re.sub(r'<tool_call>.*?</tool_call>', '', reply, flags=re.DOTALL)
+        reply = re.sub(r'</?think>', '', reply)
+        reply = re.sub(r'</?tool_call>', '', reply)
+        reply = re.sub(r'(?im)^[ \t]*User Safety:.*$', '', reply)
+        reply = re.sub(r'(?im)^[ \t]*Response Safety:.*$', '', reply)
+        reply = re.sub(r'\n{3,}', '\n\n', reply)  # collapse extra blank lines
+        reply = reply.strip()
+        if not reply:
+            reply = "I'm sorry, I couldn't process that properly. Could you rephrase your question?"
+        return reply
     except Exception as e:
         print("AI ERROR:", e)
         return (
@@ -1268,6 +1288,7 @@ class ChatbotCreateRequest(BaseModel):
 
 class KnowledgeLinkRequest(BaseModel):
     url: str
+    max_pages: int = Field(default=25, ge=1, le=100)
 
 
 class KnowledgeTextRequest(BaseModel):
@@ -1294,10 +1315,96 @@ class VisibleTextParser(HTMLParser):
             self.parts.append(data.strip())
 
 
+class PageMetadataParser(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.title_parts = []
+        self.description = ""
+        self.in_title = False
+
+    def handle_starttag(self, tag, attrs):
+        attributes = dict(attrs)
+        if tag == "title":
+            self.in_title = True
+        if tag == "meta" and attributes.get("name", "").lower() == "description":
+            self.description = attributes.get("content", "").strip()
+
+    def handle_endtag(self, tag):
+        if tag == "title":
+            self.in_title = False
+
+    def handle_data(self, data):
+        if self.in_title and data.strip():
+            self.title_parts.append(data.strip())
+
+
+class PageLinkParser(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.links = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag != "a":
+            return
+        href = dict(attrs).get("href", "").strip()
+        if href:
+            self.links.append(href)
+
+
 def extract_visible_text(markup: str) -> str:
     parser = VisibleTextParser()
     parser.feed(markup)
     return "\n".join(parser.parts)
+
+
+def extract_page_knowledge(markup: str) -> str:
+    visible_text = extract_visible_text(markup)
+    if len(visible_text) >= 20:
+        return visible_text
+
+    metadata_parser = PageMetadataParser()
+    metadata_parser.feed(markup)
+    metadata = []
+    if metadata_parser.title_parts:
+        metadata.append("Page title: " + " ".join(metadata_parser.title_parts))
+    if metadata_parser.description:
+        metadata.append("Page description: " + metadata_parser.description)
+    return "\n".join(metadata + ([visible_text] if visible_text else []))
+
+
+def extract_page_links(markup: str, page_url: str, hostname: str) -> list[str]:
+    parser = PageLinkParser()
+    parser.feed(markup)
+    links = []
+    for href in parser.links:
+        absolute_url, _ = urldefrag(urljoin(page_url, href))
+        parsed = urlparse(absolute_url)
+        if parsed.scheme not in {"http", "https"} or parsed.hostname != hostname:
+            continue
+        if parsed.path.lower().endswith((".pdf", ".jpg", ".jpeg", ".png", ".gif", ".zip", ".mp4")):
+            continue
+        if absolute_url not in links:
+            links.append(absolute_url)
+    return links
+
+
+def fetch_website_markup(url: str) -> str:
+    response = requests.get(
+        url,
+        headers={
+            "User-Agent": "Mozilla/5.0 (compatible; KairoKnowledgeBot/1.0)",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.8",
+        },
+        timeout=(3, 5),
+        allow_redirects=True,
+    )
+    response.raise_for_status()
+    content_type = response.headers.get("content-type", "").lower()
+    if content_type and not any(value in content_type for value in ("text/html", "application/xhtml+xml", "text/plain")):
+        raise ValueError("The URL did not return an HTML or text page")
+    response.encoding = response.encoding or "utf-8"
+    return response.text[:2_000_000]
 
 
 def chatbot_embed_markup(public_token: str) -> str:
@@ -1404,8 +1511,8 @@ def conversational_reply(message: str) -> str:
     text = message.lower().strip()
     if is_greeting(message):
         return (
-            "Hi! I’m NetVeda AI. I can help you compare plans, troubleshoot internet issues, "
-            "or answer general questions. What would you like help with today?"
+            "Hi! I’m Kairo AI. I can answer questions about this website or chat about general topics. "
+            "What would you like to explore today?"
         )
     if text in {"thanks", "thank you", "thx"}:
         return "You’re welcome! Is there anything else you’d like help with?"
@@ -1436,8 +1543,7 @@ def conversational_reply(message: str) -> str:
     if client:
         return generate_ai_response(message)
     return (
-        "I’m happy to help. You can ask me about NetVeda plans, internet troubleshooting, "
-        "support, or a new connection."
+        "I’m happy to help with this website or with a normal conversation. What would you like to know?"
     )
 
 
@@ -1559,7 +1665,7 @@ def escalate_ticket(ticket_id: str, resolution_notes: str = "Escalated to a huma
 
 @app.post("/chatbot/create", status_code=201)
 def create_chatbot(request: ChatbotCreateRequest, http_request: Request):
-    chatbot = get_or_create_chatbot(request.name)
+    chatbot = create_new_chatbot(request.name)
     base_url = str(http_request.base_url).rstrip("/")
     return {
         "chatbot": chatbot,
@@ -1573,21 +1679,47 @@ def train_from_link(public_token: str, request: KnowledgeLinkRequest):
     chatbot = get_chatbot_by_token(public_token)
     if not chatbot:
         raise HTTPException(status_code=404, detail="Chatbot not found")
-    if not request.url.startswith(("http://", "https://")):
+    parsed_url = urlparse(request.url.strip())
+    if parsed_url.scheme not in {"http", "https"} or not parsed_url.netloc:
         raise HTTPException(status_code=422, detail="A valid HTTP(S) URL is required")
 
-    try:
-        url_request = UrlRequest(request.url, headers={"User-Agent": "NetVedaKnowledgeBot/1.0"})
-        with urlopen(url_request, timeout=15) as response:
-            markup = response.read(2_000_000).decode("utf-8", errors="ignore")
-        content = extract_visible_text(markup)
-    except Exception as error:
-        raise HTTPException(status_code=422, detail="Could not read the supplied website") from error
+    start_url = request.url.strip().rstrip("/")
+    hostname = parsed_url.hostname
+    queue = deque([start_url])
+    visited = set()
+    pages = []
+    failures = []
 
-    if len(content) < 20:
-        raise HTTPException(status_code=422, detail="The website did not contain readable text")
-    source = save_knowledge_source(chatbot["chatbot_id"], "website", request.url, content)
-    return {"trained": True, "source": source}
+    while queue and len(pages) < request.max_pages:
+        page_url = queue.popleft()
+        if page_url in visited:
+            continue
+        visited.add(page_url)
+        try:
+            markup = fetch_website_markup(page_url)
+            content = extract_page_knowledge(markup)
+            if len(content) >= 20:
+                source = save_knowledge_source(chatbot["chatbot_id"], "website", page_url, content)
+                pages.append({"url": page_url, "source": source})
+            for discovered_url in extract_page_links(markup, page_url, hostname):
+                if discovered_url not in visited and len(visited) < request.max_pages * 3:
+                    queue.append(discovered_url)
+        except Exception as error:
+            print(f"Knowledge fetch failed for {page_url!r}: {error}")
+            failures.append({"url": page_url, "error": str(error)})
+
+    if not pages:
+        detail = "Could not read any public pages from this website. Try its homepage, FAQ/help page, or paste the content manually."
+        if failures and isinstance(failures[0].get("error"), str):
+            detail += " Check that the URL is public and does not require login."
+        raise HTTPException(status_code=422, detail=detail)
+
+    return {
+        "trained": True,
+        "pages_crawled": len(pages),
+        "pages_failed": len(failures),
+        "sources": [page["source"] for page in pages],
+    }
 
 
 @app.post("/chatbot/{public_token}/knowledge/text")
@@ -1696,6 +1828,7 @@ def unified_chat(request: UnifiedChatRequest):
 
     if (
         surface == "website"
+        and not request.chatbot_token
         and not request.phone_number
         and is_plan_request(message)
         and not is_account_action(message)
@@ -1712,7 +1845,12 @@ def unified_chat(request: UnifiedChatRequest):
     if not request.phone_number and not wants_ticket_or_contact(message):
         return {
             "reply": (
-                generate_ai_response(message, request.conversation, training_text)
+                generate_ai_response(
+                    message,
+                    request.conversation,
+                    training_text,
+                    use_global_knowledge=not bool(request.chatbot_token),
+                )
                 if client and not is_greeting(message)
                 else conversational_reply(message)
             ),
@@ -1721,7 +1859,7 @@ def unified_chat(request: UnifiedChatRequest):
             "offer_ticket": is_support_issue(message),
         }
 
-    if surface == "website" and not request.phone_number and is_guest_eligible(message):
+    if surface == "website" and not request.chatbot_token and not request.phone_number and is_guest_eligible(message):
         return {"reply": recommend_plan(message), "guest_mode": True}
 
     if not request.phone_number:
@@ -2005,6 +2143,21 @@ def orders_subscriptions():
 # =========================================================
 # FRONTEND
 # =========================================================
+PUBLIC_PAGES = {
+    "/about": "about.html",
+    "/pricing": "pricing.html",
+    "/blog": "blog.html",
+    "/login": "login.html",
+    "/app": "app.html",
+}
+
+
+for page_path, page_file in PUBLIC_PAGES.items():
+    def serve_page(page_file=page_file):
+        return FileResponse(FRONTEND_DIR / page_file)
+
+    app.add_api_route(page_path, serve_page, methods=["GET"], include_in_schema=False)
+
 if FRONTEND_DIR.exists():
     app.mount(
         "/",

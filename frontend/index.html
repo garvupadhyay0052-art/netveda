@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="NetVeda - Smart, fast and reliable internet solutions.">
-    <title>NetVeda - Smart Internet Solutions</title>
+    <meta name="description" content="Kairo AI - An intelligent assistant that learns your website and helps every visitor.">
+    <title>Kairo AI - Your website, understood.</title>
 
     <link rel="stylesheet" href="style.css">
 </head>
@@ -18,22 +18,21 @@
         <div class="nav-inner">
 
             <a href="#home" class="brand">
-                NetVeda
+                <span class="brand-mark">k</span>airo
             </a>
 
             <nav class="nav-links">
-                <a href="#home">Home</a>
-                <a href="#plans">Plans</a>
-                <a href="#customer-records">Records</a>
-                <a href="#about">About</a>
-                <a href="#contact">Contact</a>
+                <a href="#home">Solutions</a>
+                <a href="#features">How it works</a>
+                <a href="#about">Blog</a>
+                <a href="#contact">Pricing</a>
             </nav>
 
             <button
                 class="nav-chat-btn"
                 type="button"
-                onclick="openChat()">
-                Chat with AI
+                onclick="openLogin()">
+                Log in
             </button>
 
             <button
@@ -51,26 +50,26 @@
                 Home
             </a>
 
-            <a href="#plans" onclick="closeMobileMenu()">
-                Plans
-            </a>
-
-            <a href="#customer-records" onclick="closeMobileMenu()">
-                Records
+            <a href="#features" onclick="closeMobileMenu()">
+                How it works
             </a>
 
             <a href="#about" onclick="closeMobileMenu()">
-                About
+                Blog
             </a>
 
             <a href="#contact" onclick="closeMobileMenu()">
-                Contact
+                Pricing
+            </a>
+
+            <a href="#home" onclick="closeMobileMenu()">
+                Log in
             </a>
 
             <button
                 type="button"
-                onclick="closeMobileMenu(); openChat()">
-                Chat with AI
+                onclick="closeMobileMenu(); openLogin()">
+                Try it free
             </button>
 
         </nav>
@@ -87,37 +86,35 @@
             <div class="hero-content">
 
                 <div class="eyebrow">
-                    SMART • FAST • RELIABLE
+                    KAIRO AI · YOUR SITE, UNDERSTOOD
                 </div>
 
                 <h1>
-                    Internet that keeps
-                    <span>you connected.</span>
+                    AI chatbot
+                    <span>for your site.</span>
                 </h1>
 
                 <p class="hero-text">
-                    Experience affordable and reliable internet
-                    solutions with NetVeda.
+                    Turn your website into an always-on assistant.
                 </p>
 
                 <p class="hero-subtext">
-                    Need help? Our AI assistant is available to
-                    answer your questions, explain plans and help
-                    with internet support.
+                    Kairo learns from your content and answers visitor
+                    questions automatically, in your voice.
                 </p>
 
                 <div class="hero-actions">
 
                     <button
                         class="primary-btn"
-                        onclick="scrollToPlans()">
-                        View Plans
+                        onclick="openChat()">
+                        Try the AI assistant
                     </button>
 
                     <button
                         class="secondary-btn"
                         onclick="openChat()">
-                        Ask NetVeda AI
+                        See how it works
                     </button>
 
                 </div>
@@ -126,17 +123,17 @@
 
                     <div>
                         <strong>24/7</strong>
-                        <span>AI Assistance</span>
+                        <span>Always available</span>
                     </div>
 
                     <div>
-                        <strong>3</strong>
-                        <span>Flexible Plans</span>
+                        <strong>10 min</strong>
+                        <span>To get started</span>
                     </div>
 
                     <div>
-                        <strong>Fast</strong>
-                        <span>Support Flow</span>
+                        <strong>1 click</strong>
+                        <span>To ask anything</span>
                     </div>
 
                 </div>
@@ -153,7 +150,7 @@
                         <span class="status-dot"></span>
 
                         <span>
-                            NetVeda Network
+                            Kairo AI
                         </span>
 
                         <span class="signal">
@@ -168,19 +165,19 @@
                         <div class="orbit orbit-two"></div>
 
                         <div class="orbit-center">
-                            N
+                            ✦
                         </div>
 
                         <div class="node node-one">
-                            5G
+                            Docs
                         </div>
 
                         <div class="node node-two">
-                            WiFi
+                            FAQ
                         </div>
 
                         <div class="node node-three">
-                            AI
+                            Chat
                         </div>
 
                     </div>
@@ -203,11 +200,11 @@
                     <div class="network-footer">
 
                         <span>
-                            Smart connectivity
+                            Learning from your site
                         </span>
 
                         <span>
-                            ● Online
+                            ● Ready to help
                         </span>
 
                     </div>
@@ -221,397 +218,91 @@
 
         <!-- ================= SERVICE PULSE ================= -->
 
-        <section class="service-pulse" aria-label="NetVeda service status">
+        <section class="service-pulse" aria-label="Kairo AI service status">
             <div class="pulse-label">
                 <span class="pulse-dot"></span>
-                <span>NETVEDA SERVICE PULSE</span>
+                <span>KAIRO AI PULSE</span>
             </div>
             <div class="pulse-items">
-                <div><span>Network</span><strong>Operational</strong></div>
-                <div><span>AI support</span><strong>Available 24/7</strong></div>
-                <div><span>Average reply</span><strong>Under 30 sec</strong></div>
+                <div><span>Knowledge base</span><strong>Connected</strong></div>
+                <div><span>AI assistant</span><strong>Online 24/7</strong></div>
+                <div><span>Visitor replies</span><strong>Instant</strong></div>
             </div>
             <span class="pulse-time">Updated just now</span>
         </section>
 
 
-        <!-- ================= PLANS ================= -->
+        <!-- ================= ASSISTANT WORKSPACE ================= -->
 
-        <section
-            class="section plans-section"
-            id="plans">
-
-            <div class="section-heading">
-
-                <div class="eyebrow">
-                    NETVEDA PLANS
-                </div>
-
-                <h2>
-                    Choose a plan that fits your needs.
-                </h2>
-
-                <p>
-                    Simple plans with clear pricing and validity.
-                </p>
-
+        <section class="assistant-workspace auth-gated" id="workspace" aria-hidden="true">
+            <div class="workspace-heading">
+                <div class="eyebrow">BUILD YOUR ASSISTANT</div>
+                <h2>From website to useful AI in three focused moves.</h2>
+                <p>Give Kairo a source, shape its personality, and leave with an assistant your visitors can actually use.</p>
             </div>
 
-
-            <div class="plans-grid">
-
-                <!-- PLAN 199 -->
-
-                <article class="plan-card">
-
-                    <div class="plan-label">
-                        STARTER
-                    </div>
-
-                    <h3>
-                        NetVeda 199
-                    </h3>
-
-                    <div class="price">
-                        ₹199
-                        <span>/ plan</span>
-                    </div>
-
-                    <ul>
-                        <li>1 GB/day</li>
-                        <li>28 days validity</li>
-                        <li>Everyday internet</li>
-                    </ul>
-
-                    <button
-                        onclick="askAboutPlan('NetVeda 199')">
-                        Ask AI
-                    </button>
-
-                </article>
-
-
-                <!-- PLAN 299 -->
-
-                <article class="plan-card featured">
-
-                    <div class="popular-badge">
-                        POPULAR
-                    </div>
-
-                    <div class="plan-label">
-                        EVERYDAY
-                    </div>
-
-                    <h3>
-                        NetVeda 299
-                    </h3>
-
-                    <div class="price">
-                        ₹299
-                        <span>/ plan</span>
-                    </div>
-
-                    <ul>
-                        <li>1.5 GB/day</li>
-                        <li>28 days validity</li>
-                        <li>Balanced data usage</li>
-                    </ul>
-
-                    <button
-                        onclick="askAboutPlan('NetVeda 299')">
-                        Ask AI
-                    </button>
-
-                </article>
-
-
-                <!-- PLAN 399 -->
-
-                <article class="plan-card">
-
-                    <div class="plan-label">
-                        POWER
-                    </div>
-
-                    <h3>
-                        NetVeda 399
-                    </h3>
-
-                    <div class="price">
-                        ₹399
-                        <span>/ plan</span>
-                    </div>
-
-                    <ul>
-                        <li>2 GB/day</li>
-                        <li>56 days validity</li>
-                        <li>Gaming-focused option</li>
-                    </ul>
-
-                    <button
-                        onclick="askAboutPlan('NetVeda 399')">
-                        Ask AI
-                    </button>
-
-                </article>
-
-            </div>
-
-        </section>
-
-
-        <!-- ================= CUSTOMER RECORDS ================= -->
-
-        <section
-            class="section records-section"
-            id="customer-records">
-
-            <div class="section-heading records-heading">
-
-                <div class="eyebrow">
-                    CUSTOMER RECORDS
-                </div>
-
-                <h2>
-                    Customers and registered tickets.
-                </h2>
-
-                <p>
-                    Customer details and ticket information are shown here.
-                    Normal chat messages are not stored.
-                </p>
-
-                <button
-                    class="primary-btn records-load-btn"
-                    type="button"
-                    onclick="loadCustomerRecords()">
-                    Load Records
+            <div class="workspace-steps" role="tablist" aria-label="Assistant setup steps">
+                <button class="workspace-step active" type="button" data-step="1" onclick="selectWorkspaceStep(1)">
+                    <span>01</span><strong>Train</strong><small>Teach it your world</small>
                 </button>
-
-            </div>
-
-            <div class="records-table-wrap">
-                <table class="records-table">
-                    <thead>
-                        <tr>
-                            <th>Customer ID</th>
-                            <th>Name</th>
-                            <th>Phone</th>
-                            <th>Ticket ID</th>
-                            <th>Issue</th>
-                            <th>Status</th>
-                            <th>Source</th>
-                        </tr>
-                    </thead>
-                    <tbody id="customer-records-body">
-                        <tr>
-                            <td colspan="7">Click Load Records to view customer data.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-        </section>
-
-
-        <!-- ================= FEATURES ================= -->
-
-        <section class="section features-section">
-
-            <div class="section-heading">
-
-                <div class="eyebrow">
-                    WHY NETVEDA
-                </div>
-
-                <h2>
-                    More than a plan.
-                    A smarter support experience.
-                </h2>
-
-            </div>
-
-
-            <div class="features-grid">
-
-                <div class="feature-card">
-
-                    <div class="feature-icon">
-                        ⚡
-                    </div>
-
-                    <h3>
-                        Simple
-                    </h3>
-
-                    <p>
-                        Clear plans and an easy way to get help
-                        without unnecessary steps.
-                    </p>
-
-                </div>
-
-
-                <div class="feature-card">
-
-                    <div class="feature-icon">
-                        🤖
-                    </div>
-
-                    <h3>
-                        AI Assistance
-                    </h3>
-
-                    <p>
-                        Ask general questions, learn about NetVeda
-                        or get help with internet issues.
-                    </p>
-
-                </div>
-
-
-                <div class="feature-card">
-
-                    <div class="feature-icon">
-                        🎫
-                    </div>
-
-                    <h3>
-                        Support Tickets
-                    </h3>
-
-                    <p>
-                        Customer support requests can be registered
-                        through the chatbot flow.
-                    </p>
-
-                </div>
-
-
-                <div class="feature-card">
-
-                    <div class="feature-icon">
-                        📶
-                    </div>
-
-                    <h3>
-                        Connected
-                    </h3>
-
-                    <p>
-                        Get guidance for common WiFi, router,
-                        network and data-related questions.
-                    </p>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- ================= ABOUT ================= -->
-
-        <section
-            class="section about-section"
-            id="about">
-
-            <div class="about-card">
-
-                <div>
-
-                    <div class="eyebrow">
-                        ABOUT NETVEDA
-                    </div>
-
-                    <h2>
-                        Built around a better
-                        customer experience.
-                    </h2>
-
-                    <p>
-                        NetVeda is a fictional telecom concept
-                        focused on affordable mobile data plans
-                        and a helpful AI-powered customer experience.
-                    </p>
-
-                </div>
-
-
-                <div class="about-points">
-
-                    <div>
-                        <span>01</span>
-                        Plan information
-                    </div>
-
-                    <div>
-                        <span>02</span>
-                        New connection assistance
-                    </div>
-
-                    <div>
-                        <span>03</span>
-                        Customer support
-                    </div>
-
-                    <div>
-                        <span>04</span>
-                        AI-powered general conversation
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- ================= CONTACT ================= -->
-
-        <section
-            class="section contact-section"
-            id="contact">
-
-            <div class="contact-card">
-
-                <div>
-
-                    <div class="eyebrow">
-                        NEED HELP?
-                    </div>
-
-                    <h2>
-                        Talk to NetVeda AI.
-                    </h2>
-
-                    <p>
-                        Ask about plans, internet, routers,
-                        support or anything else.
-                    </p>
-
-                </div>
-
-                <button
-                    class="primary-btn"
-                    onclick="openChat()">
-                    Start Chat
+                <button class="workspace-step" type="button" data-step="2" onclick="selectWorkspaceStep(2)">
+                    <span>02</span><strong>Customize</strong><small>Make it sound like you</small>
                 </button>
-
+                <button class="workspace-step" type="button" data-step="3" onclick="selectWorkspaceStep(3)">
+                    <span>03</span><strong>Launch</strong><small>Connect it anywhere</small>
+                </button>
             </div>
 
+            <div class="workspace-panel" id="workspace-panel">
+                <div class="workspace-panel-copy">
+                    <span class="workspace-kicker">STEP 01 / TRAIN</span>
+                    <h3>Let Kairo learn from your public pages.</h3>
+                    <p>Paste a website link and create a focused knowledge layer for your assistant.</p>
+                    <form class="train-form" id="train-form" onsubmit="trainWebsite(event)">
+                        <input id="training-url" type="url" placeholder="https://yourwebsite.com" aria-label="Website URL to train">
+                        <button type="submit">Train source</button>
+                    </form>
+                    <p class="workspace-feedback" id="workspace-feedback" aria-live="polite">Waiting for your first source.</p>
+                </div>
+                <div class="source-board">
+                    <div class="source-board-top"><span class="source-live"></span> KNOWLEDGE MAP <span>3 sources ready</span></div>
+                    <div class="source-node source-node-main">Kairo core <small>Assistant memory</small></div>
+                    <div class="source-connector connector-one"></div>
+                    <div class="source-connector connector-two"></div>
+                    <div class="source-node source-node-one">Website <small>Public pages</small></div>
+                    <div class="source-node source-node-two">FAQ <small>Manual answers</small></div>
+                    <div class="source-node source-node-three">Tickets <small>Human handoff</small></div>
+                </div>
+            </div>
         </section>
+
 
     </main>
 
+    <!-- ================= LOGIN MODAL ================= -->
 
-    <!-- ================= CHATBOT ================= -->
+    <div class="login-modal" id="login-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="login-title">
+        <div class="login-modal-backdrop" onclick="closeLogin()"></div>
+        <div class="login-card">
+            <button class="login-close" type="button" onclick="closeLogin()" aria-label="Close login">&times;</button>
+            <div class="login-orb">K</div>
+            <span class="eyebrow">PRIVATE WORKSPACE</span>
+            <h2 id="login-title">Build your AI assistant.</h2>
+            <p>Sign in to train Kairo, shape its voice, and launch it on your website.</p>
+            <button class="login-provider" type="button" onclick="completeLogin('Google')"><span>G</span> Continue with Google</button>
+            <button class="login-provider login-provider-dark" type="button" onclick="completeLogin('email')">Continue with email <span>&rarr;</span></button>
+            <small>Free to explore. No credit card required.</small>
+        </div>
+    </div>
 
-    <div
+
+        <!-- ================= KAIRO CHATBOT ================= -->
+
+ <div
         class="chatbot"
         id="chatbot"
-        aria-hidden="true">
+        aria-hidden="true"
+    >
 
         <!-- HEADER -->
 
@@ -620,13 +311,20 @@
             <div class="chat-brand">
 
                 <div class="bot-avatar">
-                    ✦
+
+                    <img
+                        src="https://ui-avatars.com/api/?name=Kairo+AI&background=ffffff&color=1769e0"
+                        alt="Kairo AI avatar"
+                    >
+
+                    <span class="avatar-online"></span>
+
                 </div>
 
                 <div>
 
                     <div class="chat-title">
-                        Need help? Ask NetVeda.
+                        Kairo AI
                     </div>
 
                     <div class="chat-status">
@@ -639,17 +337,25 @@
             </div>
 
 
+            <!-- TOP SPEAKER REMOVED -->
+
             <div class="chat-header-actions">
 
                 <button
+                    type="button"
                     class="header-icon-btn"
-                    onclick="minimizeChat()">
+                    title="Minimize"
+                    onclick="minimizeChat()"
+                >
                     −
                 </button>
 
                 <button
+                    type="button"
                     class="header-icon-btn close-btn"
-                    onclick="closeChat()">
+                    title="Close"
+                    onclick="closeChat()"
+                >
                     ×
                 </button>
 
@@ -662,43 +368,55 @@
 
         <div
             class="chat-welcome"
-            id="chat-welcome">
+            id="chat-welcome"
+        >
 
-            <div class="welcome-icon">
-                ✦
+            <div class="welcome-row">
+
+                <img
+                    src="https://ui-avatars.com/api/?name=Kairo+AI&background=ffffff&color=1769e0"
+                    class="welcome-avatar"
+                    alt="Kairo AI"
+                >
+
+                <div>
+
+                    <h3>
+                        Hi! I'm Kairo AI 👋
+                    </h3>
+
+                    <p>
+                        I can answer questions, explain
+                        website information and have normal
+                        conversations with you.
+                    </p>
+
+                </div>
+
             </div>
-
-            <h3>
-                Hi! I'm NetVeda AI 👋
-            </h3>
-
-            <p>
-                I can help with NetVeda plans,
-                internet and router issues,
-                customer support, or normal questions.
-            </p>
 
 
             <div class="quick-actions">
 
                 <button
-                    onclick="quickMessage('Show me the NetVeda plans')">
-                    View NetVeda Plans
+                    type="button"
+                    onclick="quickMessage('Tell me about this website')"
+                >
+                    About this website
                 </button>
 
                 <button
-                    onclick="quickMessage('I want a new connection')">
-                    New Connection
+                    type="button"
+                    onclick="quickMessage('What can you help me with?')"
+                >
+                    What can you help me with?
                 </button>
 
                 <button
-                    onclick="quickMessage('I need internet or router help')">
-                    Internet / Router Help
-                </button>
-
-                <button
-                    onclick="quickMessage('I am an existing customer')">
-                    Existing Customer
+                    type="button"
+                    onclick="quickMessage('Tell me about your services')"
+                >
+                    Services
                 </button>
 
             </div>
@@ -706,42 +424,89 @@
         </div>
 
 
-        <!-- CHAT MESSAGES -->
+        <!-- CHAT WINDOW -->
 
         <div
             class="chat-window"
-            id="chat-window">
-        </div>
+            id="chat-window"
+        ></div>
 
 
-        <!-- INPUT -->
+        <!-- ATTACHMENT PREVIEW -->
+
+        <div
+            class="attachment-preview"
+            id="attachment-preview"
+        ></div>
+
+
+        <!-- INPUT AREA -->
 
         <div class="chat-input-area">
 
             <div class="input-shell">
 
-                <span class="input-sparkle">
-                    ✦
-                </span>
+
+                <!-- FILE ATTACHMENT -->
+
+                <input
+                    type="file"
+                    id="file-input"
+                    hidden
+                    multiple
+                    accept=".txt,.csv,.pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.webp"
+                >
+
+                <button
+                    type="button"
+                    class="input-icon-btn"
+                    id="attach-button"
+                    title="Attach file"
+                    onclick="document.getElementById('file-input').click()"
+                >
+                    📎
+                </button>
+
+
+                <!-- TEXT INPUT -->
 
                 <input
                     type="text"
                     id="user-input"
                     placeholder="Ask me anything..."
-                    autocomplete="off">
+                    autocomplete="off"
+                    aria-label="Chat message"
+                >
+
+
+                <!-- MICROPHONE -->
+
+                <button
+                    type="button"
+                    class="input-icon-btn mic-btn"
+                    id="mic-button"
+                    title="Voice input"
+                    onclick="startVoiceInput()"
+                >
+                    🎤
+                </button>
+
+
+                <!-- SEND -->
 
                 <button
                     type="button"
                     id="send-button"
-                    onclick="sendMessage()">
+                    onclick="sendMessage()"
+                    aria-label="Send message"
+                >
                     ➤
                 </button>
 
             </div>
 
             <div class="chat-note">
-                NetVeda AI can make mistakes.
-                Check important information.
+                Kairo AI can make mistakes. Check important information.
             </div>
 
         </div>
@@ -749,20 +514,29 @@
     </div>
 
 
-    <!-- FLOATING CHAT BUTTON -->
+    
+
+<!-- FLOATING BUTTON -->
 
     <button
         class="chat-float"
         id="chat-float"
-        onclick="openChat()">
+        type="button"
+        onclick="openChat()"
+        aria-label="Open Kairo AI"
+    >
 
-        <span class="float-bot">
-            ✦
-        </span>
+        <img
+            src="https://ui-avatars.com/api/?name=Kairo+AI&background=ffffff&color=1769e0"
+            class="float-avatar"
+            alt="Kairo AI"
+        >
 
         <span class="float-pulse"></span>
 
     </button>
+
+
 
 
     <!-- FOOTER -->
@@ -770,18 +544,18 @@
     <footer class="footer">
 
         <div>
-            © 2026 NetVeda.
-            Fictional telecom concept.
+            © 2026 Kairo AI.
+            Your website, understood.
         </div>
 
         <div>
-            Smart • Fast • Reliable
+            Learn • Answer • Escalate
         </div>
 
     </footer>
 
 
-    <script src="script.js"></script>
+    <script src="script.js?v=kairo-customize-v4"></script>
 
 </body>
 </html>

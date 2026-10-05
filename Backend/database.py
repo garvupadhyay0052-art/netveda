@@ -285,6 +285,27 @@ def get_or_create_chatbot(name: str = "NetVeda AI", backend_origin: str | None =
     return chatbot
 
 
+def create_new_chatbot(name: str = "Kairo AI", backend_origin: str | None = None) -> dict[str, Any]:
+    """Always creates a brand-new chatbot with a unique token, even if name already exists."""
+    chatbot = {
+        "chatbot_id": _new_id("BOT"),
+        "name": name,
+        "public_token": uuid.uuid4().hex,
+        "backend_origin": backend_origin,
+        "created_at": utc_now(),
+    }
+    with get_connection() as connection:
+        connection.execute(
+            """
+            INSERT INTO chatbot_configs (
+                chatbot_id, name, public_token, backend_origin, created_at
+            ) VALUES (?, ?, ?, ?, ?)
+            """,
+            tuple(chatbot.values()),
+        )
+    return chatbot
+
+
 def get_chatbot_by_token(public_token: str) -> dict[str, Any] | None:
     with get_connection() as connection:
         row = connection.execute(
