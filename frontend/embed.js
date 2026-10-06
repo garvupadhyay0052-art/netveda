@@ -28,7 +28,8 @@
         ].join(";");
 
         var iframe = document.createElement("iframe");
-        iframe.src = backendOrigin + "/chatbot/" + encodeURIComponent(token);
+        var htmlTemplate = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NetVeda AI</title><style>body{margin:0;font-family:Arial,sans-serif;background:#09090b}#app{height:100vh}</style></head><body><div id="app"></div><script>window.NETVEDA_CHATBOT_TOKEN="' + token + '";</script><script src="' + backendOrigin + '/embed.js"></script></body></html>';
+        iframe.srcdoc = htmlTemplate;
         iframe.style.cssText = [
             "position:fixed", "right:20px", "bottom:100px", "width:390px", "height:650px",
             "max-height:calc(100vh - 120px)", "max-width:calc(100vw - 40px)",
@@ -223,7 +224,10 @@
 
         fetch(apiBase + "/unified-chat", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { 
+                "Content-Type": "application/json",
+                "ngrok-skip-browser-warning": "1"
+            },
             body: JSON.stringify({
                 message: message,
                 surface: "website",
