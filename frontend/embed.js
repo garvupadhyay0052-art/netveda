@@ -7,8 +7,15 @@
 
     var scriptUrl = currentScript && currentScript.src;
     var backendOrigin = scriptUrl ? new URL(scriptUrl).origin : window.location.origin;
-    var isHostedPage = window.parent !== window;
 
+    // Detect if we are being loaded as the hosted chatbot page (via /chatbot/{token})
+    // In that case, window.NETVEDA_CHATBOT_TOKEN is set by the server-rendered HTML
+    var isHostedPage = !!window.NETVEDA_CHATBOT_TOKEN;
+
+    // =========================================================
+    // EXTERNAL EMBED MODE: Show floating bubble + iframe
+    // When the script tag is placed on a 3rd-party website
+    // =========================================================
     if (!isHostedPage) {
         var bubble = document.createElement("button");
         bubble.innerHTML = '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>';
@@ -19,7 +26,7 @@
             "display:flex", "align-items:center", "justify-content:center", "transition:transform 0.2s ease",
             "padding:0", "margin:0"
         ].join(";");
-        
+
         var iframe = document.createElement("iframe");
         iframe.src = backendOrigin + "/chatbot/" + encodeURIComponent(token);
         iframe.style.cssText = [
@@ -29,10 +36,10 @@
             "background:#fff", "opacity:0", "pointer-events:none", "transform:translateY(20px)", "transition:all 0.3s ease"
         ].join(";");
         iframe.title = "Kairo AI chatbot";
-        
+
         var isOpen = false;
-        
-        bubble.addEventListener("click", function() {
+
+        bubble.addEventListener("click", function () {
             isOpen = !isOpen;
             if (isOpen) {
                 iframe.style.opacity = "1";
@@ -47,13 +54,18 @@
             }
         });
 
-        bubble.addEventListener("mouseenter", function() { bubble.style.transform = "scale(1.05)"; });
-        bubble.addEventListener("mouseleave", function() { bubble.style.transform = "scale(1)"; });
+        bubble.addEventListener("mouseenter", function () { bubble.style.transform = "scale(1.05)"; });
+        bubble.addEventListener("mouseleave", function () { bubble.style.transform = "scale(1)"; });
 
         document.body.appendChild(iframe);
         document.body.appendChild(bubble);
         return;
     }
+
+    // =========================================================
+    // HOSTED MODE: Render the full chat UI (inside iframe or direct)
+    // =========================================================
+    var apiBase = backendOrigin;
 
     var root = document.getElementById("app");
     if (!root) return;
@@ -66,7 +78,7 @@
         ".nv-btn-icon{width:32px;height:32px;border-radius:50%;background:#1e1e22;color:#a1a1aa;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;transition:background 0.2s}",
         ".nv-btn-icon:hover{background:#27272a;color:#fff}",
         ".nv-head-title{font-weight:600;font-size:15px;color:#e4e4e7}",
-        
+
         ".nv-welcome{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}",
         ".nv-orb-container{position:relative;width:140px;height:140px;margin-bottom:24px;display:flex;justify-content:center;align-items:center}",
         ".nv-orb{width:90px;height:90px;border-radius:50%;background:radial-gradient(circle at 35% 35%, #86efac 0%, #22c55e 30%, #166534 70%, #052e16 100%);box-shadow:0 0 50px 10px rgba(34,197,94,0.25);z-index:2;position:relative}",
@@ -76,17 +88,17 @@
         ".nv-orb-ring-2{width:140px;height:140px;animation:spin 12s linear infinite reverse;border-right-color:rgba(34,197,94,0.4)}",
         "@keyframes spin{100%{transform:rotate(360deg)}}",
         ".nv-welcome-text{color:#a1a1aa;font-size:13px;margin-bottom:24px}",
-        ".nv-actions{display:flex;gap:12px;width:100%;justify-content:center}",
+        ".nv-actions{display:flex;gap:12px;width:100%;justify-content:center;flex-wrap:wrap}",
         ".nv-action-btn{background:#1e1e22;color:#e4e4e7;border:1px solid rgba(255,255,255,0.05);border-radius:20px;padding:10px 16px;font-size:13px;cursor:pointer;transition:all 0.2s}",
         ".nv-action-btn:hover{background:#27272a;border-color:rgba(255,255,255,0.1)}",
-        
+
         ".nv-messages{flex:1;overflow:auto;padding:20px;display:none;flex-direction:column;gap:16px}",
         ".nv-msg{max-width:85%;padding:12px 16px;border-radius:18px;font-size:14px;line-height:1.5;word-wrap:break-word}",
         ".nv-msg a{color:#86efac;text-decoration:underline}",
         ".nv-bot{background:#1e1e22;color:#e4e4e7;border-bottom-left-radius:6px;align-self:flex-start}",
         ".nv-user{background:#22c55e;color:#000;border-bottom-right-radius:6px;align-self:flex-end}",
         ".nv-user a{color:#064e3b}",
-        
+
         ".nv-form{padding:16px 20px;background:#09090b}",
         ".nv-input-wrapper{display:flex;align-items:center;background:#1e1e22;border-radius:30px;padding:6px 6px 6px 18px;border:1px solid rgba(255,255,255,0.05);transition:border-color 0.2s}",
         ".nv-input-wrapper:focus-within{border-color:rgba(34,197,94,0.4)}",
@@ -99,26 +111,26 @@
         "</style>",
         "<div class='nv'>",
         "<div class='nv-head'>",
-        "<button class='nv-btn-icon' id='nv-min-btn'>−</button>",
-        "<div class='nv-head-title'>SalesFlow AI</div>",
+        "<button class='nv-btn-icon' id='nv-min-btn'>\u2212</button>",
+        "<div class='nv-head-title'>Kairo AI</div>",
         "<button class='nv-btn-icon'>+</button>",
         "</div>",
-        
+
         "<div class='nv-welcome' id='nv-welcome'>",
         "<div class='nv-orb-container'>",
         "<div class='nv-orb'></div>",
         "<div class='nv-orb-ring nv-orb-ring-1'></div>",
         "<div class='nv-orb-ring nv-orb-ring-2'></div>",
         "</div>",
-        "<div class='nv-welcome-text'>AI is analyzing your sales data...</div>",
+        "<div class='nv-welcome-text'>AI is analyzing your data...</div>",
         "<div class='nv-actions'>",
-        "<button class='nv-action-btn' data-msg='Smart Analysis'>✨ Smart Analysis</button>",
-        "<button class='nv-action-btn' data-msg='Generate Report'>📋 Generate Report</button>",
+        "<button class='nv-action-btn' data-msg='Smart Analysis'>\u2728 Smart Analysis</button>",
+        "<button class='nv-action-btn' data-msg='Generate Report'>\uD83D\uDCCB Generate Report</button>",
         "</div>",
         "</div>",
-        
+
         "<div class='nv-messages' id='nv-messages'></div>",
-        
+
         "<form class='nv-form' id='nv-form'>",
         "<div class='nv-input-wrapper'>",
         "<input class='nv-input' id='nv-input' placeholder='Ask anything...' autocomplete='off'>",
@@ -135,17 +147,20 @@
     var input = document.getElementById("nv-input");
     var form = document.getElementById("nv-form");
     var minBtn = document.getElementById("nv-min-btn");
-    var history = [];
+    var chatHistory = [];
 
-    if (minBtn && window.parent !== window) {
-        minBtn.addEventListener("click", function() {
-            // Signal parent to minimize if possible
+    // Minimize button — tell parent frame to close the chatbot
+    if (minBtn) {
+        minBtn.addEventListener("click", function () {
+            if (window.parent !== window) {
+                window.parent.postMessage("kairo-minimize", "*");
+            }
         });
     }
 
     // Action buttons
-    document.querySelectorAll(".nv-action-btn").forEach(function(btn) {
-        btn.addEventListener("click", function() {
+    document.querySelectorAll(".nv-action-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
             var msg = this.getAttribute("data-msg");
             if (msg) {
                 input.value = msg;
@@ -181,6 +196,10 @@
     }
 
     function showTyping() {
+        if (welcome.style.display !== "none") {
+            welcome.style.display = "none";
+            messages.style.display = "flex";
+        }
         var el = document.createElement("div");
         el.className = "nv-msg nv-bot";
         el.id = "nv-typing";
@@ -188,7 +207,7 @@
         messages.appendChild(el);
         messages.scrollTop = messages.scrollHeight;
     }
-    
+
     function removeTyping() {
         var el = document.getElementById("nv-typing");
         if (el) el.remove();
@@ -202,27 +221,35 @@
         addMessage(message, "user");
         showTyping();
 
-        fetch("/unified-chat", {
+        fetch(apiBase + "/unified-chat", {
             method: "POST",
-            headers: {"Content-Type": "application/json"},
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 message: message,
                 surface: "website",
                 chatbot_token: token,
-                conversation: history.slice(-8)
+                conversation: chatHistory.slice(-8)
             })
         })
-        .then(function (response) { return response.json(); })
-        .then(function (data) {
-            removeTyping();
-            var reply = data.reply || "I could not generate a response right now.";
-            addMessage(reply, "bot");
-            history.push({role: "user", content: message});
-            history.push({role: "assistant", content: reply});
-        })
-        .catch(function () {
-            removeTyping();
-            addMessage("I cannot connect to the server right now.", "bot");
-        });
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
+                removeTyping();
+                var reply = data.reply || "I could not generate a response right now.";
+                addMessage(reply, "bot");
+                chatHistory.push({ role: "user", content: message });
+                chatHistory.push({ role: "assistant", content: reply });
+            })
+            .catch(function () {
+                removeTyping();
+                addMessage("I cannot connect to the server right now.", "bot");
+            });
+    });
+
+    // Listen for Enter key
+    input.addEventListener("keydown", function (event) {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            form.dispatchEvent(new Event("submit"));
+        }
     });
 })();
