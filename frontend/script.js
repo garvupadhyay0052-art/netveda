@@ -346,6 +346,9 @@ const workspaceSteps = {
     }
 };
 
+// Session flag: embed code only shown after Train → Customize → Launch flow
+let kairoFlowCompleted = false;
+
 window.selectWorkspaceStep = function selectWorkspaceStep(step) {
     const config = workspaceSteps[step];
     const panel = document.getElementById("workspace-panel");
@@ -377,24 +380,37 @@ window.selectWorkspaceStep = function selectWorkspaceStep(step) {
             });
         }
     } else {
+        // Only show embed code if user came through Train → Customize flow
+        if (!kairoFlowCompleted) {
+            copy.innerHTML = `
+                <span class="workspace-kicker">${config.kicker}</span>
+                <h3>Almost there.</h3>
+                <p>Complete <strong>Step 1 (Train)</strong> and <strong>Step 2 (Customize)</strong> first to generate your embed code.</p>
+                <div style="margin-top:24px; padding:16px; background:#fef9ec; border:1px solid #fcd34d; border-radius:10px; display:flex; gap:12px; align-items:flex-start;">
+                    <span style="font-size:20px;">⚠️</span>
+                    <div>
+                        <strong style="color:#92400e;">No chatbot trained yet</strong>
+                        <p style="color:#78350f; font-size:13px; margin-top:4px;">Go to Step 1, paste your website URL, train it, then customize in Step 2. Your embed code will appear here automatically.</p>
+                    </div>
+                </div>
+                <button type="button" style="margin-top:20px;" onclick="selectWorkspaceStep(1)">← Start with Train</button>`;
+            board.innerHTML = `<div class="launch-preview"><span>KA IRO AI</span><strong>Complete Steps 1 & 2 first.</strong><small>Waiting for training...</small><div class="launch-check" style="color:#f59e0b;">⚠ Not ready yet</div></div>`;
+            return;
+        }
+
         const token = localStorage.getItem("kairo_chatbot_token");
-        const embedCode = `<script src="${window.location.origin}/embed.js" data-chatbot-token="${token || 'YOUR_TOKEN'}"></script>`;
+        const embedCode = `<script src="${window.location.origin}/embed.js" data-chatbot-token="${token}"></script>`;
         const safeEmbedCode = embedCode.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        const btnState = token ? "" : "disabled";
-        const btnOpacity = token ? "1" : "0.5";
-        const btnCursor = token ? "pointer" : "not-allowed";
-        const feedColor = token ? "" : "color: #d93025; font-weight: bold;";
-        const feedText = token ? "Ready to be installed." : "Please train a website first (Step 1).";
-        
+
         copy.innerHTML = `
             <span class="workspace-kicker">${config.kicker}</span>
             <h3>Add Kairo to your website.</h3>
             <p>Copy this code snippet and paste it right before the closing <code>&lt;/body&gt;</code> tag on your website.</p>
             <div class="launch-link" style="flex-direction: column; align-items: stretch; gap: 12px; border: none; padding: 0; background: transparent;">
                 <div style="font-family: monospace; font-size: 11.5px; line-height: 1.5; color: #1769e0; background: #f0f7ff; padding: 14px; border-radius: 8px; border: 1px solid #bfdbfe; word-break: break-all; min-width: 0;">${safeEmbedCode}</div>
-                <button type="button" style="align-self: flex-start; opacity: ${btnOpacity}; cursor: ${btnCursor};" ${btnState} onclick="copyKairoLink()">Copy code</button>
+                <button type="button" style="align-self: flex-start;" onclick="copyKairoLink()">Copy code</button>
             </div>
-            <p class="workspace-feedback" id="workspace-feedback" aria-live="polite" style="${feedColor}">${feedText}</p>`;
+            <p class="workspace-feedback" id="workspace-feedback" aria-live="polite">Ready to be installed.</p>`;
         board.innerHTML = `<div class="launch-preview"><span>KA IRO AI</span><strong>Ready to meet your visitors.</strong><small>Embed code generated</small><div class="launch-check">✓ Code ready to copy</div></div>`;
     }
 };
@@ -409,6 +425,7 @@ window.saveCustomization = function saveCustomization() {
         alignment: document.querySelector("input[name='alignment']:checked")?.value
     }));
     applyCustomization();
+    kairoFlowCompleted = true;   // ✅ unlock Launch step
     selectWorkspaceStep(3);
 };
 
