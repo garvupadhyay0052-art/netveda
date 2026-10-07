@@ -1811,6 +1811,7 @@ def unified_chat(request: UnifiedChatRequest):
 
     if (
         surface == "website"
+        and not request.chatbot_token
         and not request.phone_number
         and is_plan_request(message)
         and not is_account_action(message)
@@ -1840,9 +1841,10 @@ def unified_chat(request: UnifiedChatRequest):
             "guest_mode": True,
             "needs_phone": False,
             "offer_ticket": is_support_issue(message),
+            "plan_options": ["Buy a Plan", "New Connection", "Contact Support"] if (request.chatbot_token and is_plan_request(message)) else None,
         }
 
-    if surface == "website" and not request.phone_number and is_guest_eligible(message):
+    if surface == "website" and not request.chatbot_token and not request.phone_number and is_guest_eligible(message):
         return {"reply": recommend_plan(message, company_name), "guest_mode": True}
 
     if not request.phone_number:
