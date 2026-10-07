@@ -1198,23 +1198,26 @@ Do not mention: backend code, internal session logic, OpenRouter, or API keys.
             model="openrouter/free",
             messages=messages,
         )
-        reply = response.choices[0].message.content
-        reply = re.sub(r'<think>.*?</think>', '', reply, flags=re.DOTALL)
-        reply = re.sub(r'<tool_call>.*?</tool_call>', '', reply, flags=re.DOTALL)
-        reply = re.sub(r'</?think>', '', reply)
-        reply = re.sub(r'</?tool_call>', '', reply)
+        reply = response.choices[0].message.content or ""
+        
+        # Handle unclosed or closed think tags
+        reply = re.sub(r'<think>.*?(?:</think>|$)', '', reply, flags=re.DOTALL | re.IGNORECASE)
+        reply = re.sub(r'<tool_call>.*?(?:</tool_call>|$)', '', reply, flags=re.DOTALL | re.IGNORECASE)
+        
         reply = re.sub(r'(?im)^[ \t]*User Safety:.*$', '', reply)
         reply = re.sub(r'(?im)^[ \t]*Response Safety:.*$', '', reply)
-        reply = re.sub(r'\n{3,}', '\n\n', reply)  # collapse extra blank lines
+        reply = re.sub(r'\n{3,}', '\n\n', reply)
         reply = reply.strip()
+        
         if not reply:
-            reply = "I'm sorry, I couldn't process that properly. Could you rephrase your question?"
+            return "I apologize, but I couldn't generate a proper response to that. Could you please try asking in a slightly different way?"
+            
         return reply
     except Exception as e:
         print("AI ERROR:", e)
         return (
-            "Sorry, I am having trouble generating a response right now. "
-            "Please try again."
+            "Sorry, the AI service is temporarily unavailable or busy. "
+            "Please try again in a few moments."
         )
 
 # =========================================================
