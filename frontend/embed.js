@@ -184,7 +184,13 @@
         return safe.replace(/\n/g, "<br>");
     }
 
-    function addMessage(text, type) {
+    var currentPhone = null;
+    var currentName = null;
+    var currentCustomerType = null;
+    var isWaitingForPhone = false;
+    var isWaitingForName = false;
+
+    function addMessage(text, type, data) {
         if (welcome.style.display !== "none") {
             welcome.style.display = "none";
             messages.style.display = "flex";
@@ -193,6 +199,59 @@
         item.className = "nv-msg " + (type === "user" ? "nv-user" : "nv-bot");
         item.innerHTML = formatMessage(text);
         messages.appendChild(item);
+
+        if (data && data.plan_options && data.plan_options.length > 0) {
+            var actionsDiv = document.createElement("div");
+            actionsDiv.className = "nv-actions";
+            actionsDiv.style.marginTop = "10px";
+            actionsDiv.style.justifyContent = "flex-start";
+            data.plan_options.forEach(function(plan) {
+                var btn = document.createElement("button");
+                btn.className = "nv-action-btn";
+                btn.innerText = plan;
+                btn.style.marginRight = "8px";
+                btn.onclick = function() {
+                    input.value = "I want to buy " + plan;
+                    form.dispatchEvent(new Event("submit"));
+                };
+                actionsDiv.appendChild(btn);
+            });
+            messages.appendChild(actionsDiv);
+        }
+
+        if (data && data.needs_customer_type) {
+            var typeDiv = document.createElement("div");
+            typeDiv.className = "nv-actions";
+            typeDiv.style.marginTop = "10px";
+            typeDiv.style.justifyContent = "flex-start";
+            ["Existing", "New"].forEach(function(ct) {
+                var btn = document.createElement("button");
+                btn.className = "nv-action-btn";
+                btn.innerText = ct;
+                btn.style.marginRight = "8px";
+                btn.onclick = function() {
+                    currentCustomerType = ct.toLowerCase();
+                    input.value = ct.toLowerCase();
+                    form.dispatchEvent(new Event("submit"));
+                };
+                typeDiv.appendChild(btn);
+            });
+            messages.appendChild(typeDiv);
+        }
+
+        if (data && data.needs_phone) {
+            isWaitingForPhone = true;
+            input.placeholder = "Enter your phone number...";
+            input.type = "tel";
+        } else if (data && data.needs_name) {
+            isWaitingForName = true;
+            input.placeholder = "Enter your full name...";
+            input.type = "text";
+        } else {
+            input.placeholder = "Ask anything...";
+            input.type = "text";
+        }
+
         messages.scrollTop = messages.scrollHeight;
     }
 
@@ -219,6 +278,15 @@
         var message = input.value.trim();
         if (!message) return;
         input.value = "";
+        
+        if (isWaitingForPhone) {
+            currentPhone = message;
+            isWaitingForPhone = false;
+        } else if (isWaitingForName) {
+            currentName = message;
+            isWaitingForName = false;
+        }
+
         addMessage(message, "user");
         showTyping();
 
@@ -232,6 +300,9 @@
                 message: message,
                 surface: "website",
                 chatbot_token: token,
+                phone_number: currentPhone,
+                name: currentName,
+                customer_type: currentCustomerType,
                 conversation: chatHistory.slice(-8)
             })
         })
@@ -239,7 +310,7 @@
             .then(function (data) {
                 removeTyping();
                 var reply = data.reply || "I could not generate a response right now.";
-                addMessage(reply, "bot");
+                addMessage(reply, "bot", data);
                 chatHistory.push({ role: "user", content: message });
                 chatHistory.push({ role: "assistant", content: reply });
             })

@@ -681,32 +681,32 @@ def detect_plan(message):
     return None
 
 
-def recommend_plan(message):
+def recommend_plan(message, company_name="NetVeda"):
     text = message.lower()
 
     if "gaming" in text or "game" in text or "gamer" in text:
         return (
-            "🎮 For gaming, I recommend **NetVeda 399**.\n\n"
-            "💰 Price: ₹399\n"
-            "📶 Data: 2 GB/day\n"
-            "📅 Validity: 56 days\n\n"
-            "This matches the current NetVeda gaming-focused requirement."
+            f"For gaming, I recommend **{company_name} 399**.\n\n"
+            "Price: INR 399\n"
+            "Data: 2 GB/day\n"
+            "Validity: 56 days\n\n"
+            f"This matches the current {company_name} gaming-focused requirement."
         )
 
     return (
-        "Here are the available NetVeda plans:\n\n"
-        "📱 **NetVeda 199**\n"
-        "• ₹199\n"
-        "• 1 GB/day\n"
-        "• 28 days\n\n"
-        "📱 **NetVeda 299**\n"
-        "• ₹299\n"
-        "• 1.5 GB/day\n"
-        "• 28 days\n\n"
-        "📱 **NetVeda 399**\n"
-        "• ₹399\n"
-        "• 2 GB/day\n"
-        "• 56 days"
+        f"Here are the available {company_name} plans:\n\n"
+        f"**{company_name} 199**\n"
+        "- INR 199\n"
+        "- 1 GB/day\n"
+        "- 28 days\n\n"
+        f"**{company_name} 299**\n"
+        "- INR 299\n"
+        "- 1.5 GB/day\n"
+        "- 28 days\n\n"
+        f"**{company_name} 399**\n"
+        "- INR 399\n"
+        "- 2 GB/day\n"
+        "- 56 days"
     )
 
 # =========================================================
@@ -1165,10 +1165,11 @@ You are Kairo AI, an intelligent and highly capable assistant.
 CRITICAL INSTRUCTIONS (MUST FOLLOW STRICTLY):
 1. STRICT LANGUAGE MATCHING: ALWAYS respond in the exact language the user uses. If the user asks in English, you MUST reply ONLY in English. Never reply in Hindi or any other language unless the user explicitly speaks in that language or requests it. Do not assume or change languages on your own.
 2. DO NOT DO THINGS UNPROMPTED: Only answer exactly what the user asks. Do not add unsolicited advice, and do not behave in a way that wasn't requested.
+3. NEVER TELL THE USER TO VISIT THE WEBSITE: If the user asks for plans, pricing, or services, YOU MUST list out whatever information you have. NEVER say "I recommend checking their official website". If you know the website domain, you MUST generate a clickable markdown link (e.g., [View Plans](https://domain.com/plans) or [View Services](https://domain.com/services)). Even if you have to guess the exact path like /plans or /services, provide the link!
 
 YOUR PRIMARY GOALS:
-1. Answer questions based on the provided WEBSITE KNOWLEDGE if the question is about this specific website. When mentioning a specific feature or page from the website, provide the absolute URL link using Markdown (e.g., [View Pricing](https://example.com/pricing)). NEVER use relative links.
-2. UNIVERSAL KNOWLEDGE: If the user asks about ANY other topic (e.g., telecom companies, science, general knowledge, coding), you must provide a correct, detailed, and helpful answer using your general AI knowledge. Adapt seamlessly to whatever they ask about.
+1. Answer questions based on the provided WEBSITE KNOWLEDGE if the question is about this specific website. When mentioning a specific feature, plan, or page from the website, provide the absolute URL link using Markdown.
+2. UNIVERSAL KNOWLEDGE: If the user asks about ANY other topic, you must provide a correct, detailed, and helpful answer using your general AI knowledge.
 
 ADAPTIVE COMMUNICATION STYLE:
 - Keep your answers natural and adapt the length to the user's need. If the question is simple, give a short, direct answer. If the question requires an explanation, give a detailed, longer answer.
@@ -1802,21 +1803,27 @@ def unified_chat(request: UnifiedChatRequest):
             "needs_phone": True,
         }
 
+    company_name = "NetVeda"
+    if request.chatbot_token:
+        bot_info = get_chatbot_by_token(request.chatbot_token)
+        if bot_info:
+            company_name = bot_info["name"]
+
     if (
         surface == "website"
-        and not request.chatbot_token
         and not request.phone_number
         and is_plan_request(message)
         and not is_account_action(message)
     ):
         return {
-            "reply": recommend_plan(message) + (
+            "reply": recommend_plan(message, company_name) + (
                 "\n\nReply **199**, **299**, or **399** to compare a plan, "
                 "or tell me if you want to buy, upgrade, or recharge."
             ),
             "guest_mode": True,
-            "plan_options": ["NetVeda 199", "NetVeda 299", "NetVeda 399"],
+            "plan_options": [f"{company_name} 199", f"{company_name} 299", f"{company_name} 399"],
         }
+
 
     if not request.phone_number and not wants_ticket_or_contact(message):
         return {
@@ -1835,8 +1842,8 @@ def unified_chat(request: UnifiedChatRequest):
             "offer_ticket": is_support_issue(message),
         }
 
-    if surface == "website" and not request.chatbot_token and not request.phone_number and is_guest_eligible(message):
-        return {"reply": recommend_plan(message), "guest_mode": True}
+    if surface == "website" and not request.phone_number and is_guest_eligible(message):
+        return {"reply": recommend_plan(message, company_name), "guest_mode": True}
 
     if not request.phone_number:
         return {
